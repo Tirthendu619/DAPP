@@ -1,72 +1,82 @@
-import React, { Component } from "react";
-import SimpleStorageContract from "./contracts/SimpleStorage.json";
-import getWeb3 from "./getWeb3";
+import React, {useReducer, useEffect} from 'react';
+import Context from './store/Context';
+import InitialeState from './store/InitialeState';
+import Reducer from './store/Reducer';
+import AddDocument from './components/AddDocument';
+import GenerateKeyPair from './components/GenerateKeyPair';
+import GetDocument from './components/GetDocument';
+import Notif from './components/Notif';
+import SimpleStorage from './contracts/SimpleStorage.json';
+import GetWeb3 from './utils/GetWeb3';
 
-import "./App.css";
+function App() {
+  // use the reducer hook
+  const [state, dispatch] = useReducer(Reducer, InitialeState);
 
-class App extends Component {
-  state = { storageValue: 0, web3: null, accounts: null, contract: null };
-
-  componentDidMount = async () => {
-    try {
-      // Get network provider and web3 instance.
-      const web3 = await getWeb3();
-
-      // Use web3 to get the user's accounts.
+  useEffect(() => {
+    const init = async () => {
+      // get web3 instance
+      const web3 = await GetWeb3();
+      
+      // get accounts      
       const accounts = await web3.eth.getAccounts();
 
-      // Get the contract instance.
+      // get the contract instance from the blockchain
       const networkId = await web3.eth.net.getId();
-      const deployedNetwork = SimpleStorageContract.networks[networkId];
-      const instance = new web3.eth.Contract(
-        SimpleStorageContract.abi,
+      const deployedNetwork = SimpleStorage.networks[networkId];      
+      const contract = new web3.eth.Contract(
+        SimpleStorage.abi,
         deployedNetwork && deployedNetwork.address,
       );
+      
+      // set the web3 instance to a global variable
+      dispatch({type: 'SET_WEB3', payload: web3});
 
-      // Set web3, accounts, and contract to the state, and then proceed with an
-      // example of interacting with the contract's methods.
-      this.setState({ web3, accounts, contract: instance }, this.runExample);
-    } catch (error) {
-      // Catch any errors for any of the above operations.
-      alert(
-        `Failed to load web3, accounts, or contract. Check console for details.`,
-      );
-      console.error(error);
+      // set accounts to a global variable
+      dispatch({type: 'SET_ACCOUNTS', payload: accounts});
+      
+      // set the contract instance to a global variable
+      dispatch({type: 'SET_CONTRACT', payload: contract});
     }
-  };
 
-  runExample = async () => {
-    const { accounts, contract } = this.state;
+    // launch the init function
+    init();
 
-    // Stores a given value, 5 by default.
-    await contract.methods.set(5).send({ from: accounts[0] });
+    // if the account of metamask change, the accounts will be updated
+    window.ethereum.on('accountsChanged', accounts => {
+      dispatch({type: 'SET_CONTRACT', payload: accounts});
+    });
+  }, []);
 
-    // Get the value from the contract to prove it worked.
-    const response = await contract.methods.get().call();
-
-    // Update state with the result.
-    this.setState({ storageValue: response });
-  };
-
-  render() {
-    if (!this.state.web3) {
-      return <div>Loading Web3, accounts, and contract...</div>;
-    }
+  // the app will be started if the state is not null
+  if(state && !state.loading) {
     return (
-      <div className="App">
-        <h1>Good to Go!</h1>
-        <p>Your Truffle Box is installed and ready.</p>
-        <h2>Smart Contract Example</h2>
-        <p>
-          If your contracts compiled and migrated successfully, below will show
-          a stored value of 5 (by default).
-        </p>
-        <p>
-          Try changing the value stored on <strong>line 40</strong> of App.js.
-        </p>
-        <div>The stored value is: {this.state.storageValue}</div>
-      </div>
+      // Provide state and dispatch function to the components of the app
+      <Context.Provider value={{state, dispatch}}>
+        <br/><br/>
+        // call the notification component
+        {state.msg && <Notif />}
+
+        // call the add document component
+        <AddDocument />
+        <hr/>
+
+        // call the get document component
+        <GetDocument />
+        <hr/>
+
+        // call the generate key component
+        <GenerateKeyPair/>
+      </Context.Provider>
     );
+  } else {
+    // if the state in null, the app shows loading message
+    return (
+      <>
+      <br/><br/>
+      <h2>Loading...</h2>
+      </>
+    )
   }
 }
 
