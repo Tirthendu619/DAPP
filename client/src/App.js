@@ -2,6 +2,7 @@ import React, {useReducer, useEffect} from 'react';
 import Context from './store/Context';
 import InitialeState from './store/InitialeState';
 import Reducer from './store/Reducer';
+import ipfsClient from './components/Ipfs';
 import AddDocument from './components/AddDocument';
 import GenerateKeyPair from './components/GenerateKeyPair';
 import GetDocument from './components/GetDocument';
