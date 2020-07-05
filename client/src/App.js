@@ -7,7 +7,7 @@ import AddDocument from './components/AddDocument';
 import GenerateKeyPair from './components/GenerateKeyPair';
 import GetDocument from './components/GetDocument';
 import Notif from './components/Notif';
-import SimpleStorageContract from '../build/contracts/SimpleStorage.json';
+import SimpleStorage from './contracts/SimpleStorage.json';
 import GetWeb3 from './utils/GetWeb3';
 
 function App() {
