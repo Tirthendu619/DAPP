@@ -1,14 +1,14 @@
 import React, {useReducer, useEffect} from 'react';
-import Context from './store/Context';
-import InitialeState from './store/InitialeState';
-import Reducer from './store/Reducer';
-import ipfs from './components/Ipfs';
-import AddDocument from './components/AddDocument';
-import GenerateKeyPair from './components/GenerateKeyPair';
-import GetDocument from './components/GetDocument';
-import Notif from './components/Notif';
+import Context from './store/Context.js';
+import InitialeState from './store/InitialeState.js';
+import Reducer from './store/Reducer.js';
+import ipfs from './components/Ipfs.js';
+import AddDocument from './components/AddDocument.js';
+import GenerateKeyPair from './components/GenerateKeyPair.js';
+import GetDocument from './components/GetDocument.js';
+import Notif from './components/Notif.js';
 import SimpleStorage from './contracts/SimpleStorage.json';
-import GetWeb3 from './utils/GetWeb3';
+import GetWeb3 from './utils/GetWeb3.js';
 
 function App() {
   // use the reducer hook
@@ -55,18 +55,18 @@ function App() {
       // Provide state and dispatch function to the components of the app
       <Context.Provider value={{state, dispatch}}>
         <br/><br/>
-        // call the notification component
+         
         {state.msg && <Notif />}
 
-        // call the add document component
+         
         <AddDocument />
         <hr/>
 
-        // call the get document component
+         
         <GetDocument />
         <hr/>
 
-        // call the generate key component
+         
         <GenerateKeyPair/>
       </Context.Provider>
     );
